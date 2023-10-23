@@ -1,0 +1,403 @@
+
+                  <!--
+                    ------------------------------------custom code liquid part------------------------------------------
+                  -->
+
+              <form method="post" action="/cart/add" class="product-form2 button2" id="main-form">
+                 <img
+                      src="{{ product.images[0] | img_url: width: "100%" }}"
+                      alt="{{ product.title }}"
+                      class="img-part"
+                    >
+                   <h2>{{ product.title }}</h2>
+                  <h3>{{ product.price | money }}</h3>
+                  {% if product.metafields.rating > 0 %}
+                    <div class="product-rating">Rating: {{ product.metafields.rating }}</div>
+                  {% endif %}
+                    {% if product.variants.size > 1 %}
+                      <div>
+                        <div class="product-option">
+                          {% for option in product.options_with_values %}
+                            <fieldset class="product-form__input">
+                              <legend class="option-lable">
+                                {{ option.name }}: <span class="lable-start">*</span>
+                              </legend>
+                              {% for value in option.values %}
+                                <div>
+                                  {% if forloop.first %}
+                                    <input
+                                      checked
+                                      class="radioBtnValue"
+                                      type="radio"
+                                      name="{{ option.name }}"
+                                      value="{{ value }}"
+                                      id="{{ option.name | handleize }}-{{ value | handleize }}-{{ product.id }}-{{ section.id }}-{{ option.position }}-{{ forloop.index0 }}"
+                                    >
+                                  {% else %}
+                                    <input
+                                      class="radioBtnValue"
+                                      type="radio"
+                                      name="{{ option.name }}"
+                                      value="{{ value }}"
+                                      id="{{ option.name | handleize }}-{{ value | handleize }}-{{ product.id }}-{{ section.id }}-{{ option.position }}-{{ forloop.index0 }}"
+                                    >
+                                  {% endif %}
+                                  <!-- ----------------------color radio part---------------------- -->
+                                  <!-- {% if product.variants[forloop.index0].metafields.color.swatch
+                                    and option.name == 'Color'
+                                  %}
+                                    <label
+                                      for="{{ option.name | handleize }}-{{ value | handleize }}-{{ product.id }}-{{ section.id }}-{{ option.position }}-{{ forloop.index0 }}"
+                                      style="background-color: {{ product.variants[forloop.index0].metafields.color.swatch }}; {{ 'red.png'| file_url}}"
+                                      class="radio-color"
+                                    >
+                                    </label>
+                                  {% else %}
+                                    <label
+                                      for="{{ option.name | handleize }}-{{ value | handleize }}-{{ product.id }}-{{ section.id }}-{{ option.position }}-{{ forloop.index0 }}"
+                                      class="radio-label"
+                                    >
+                                      {{ value }}
+                                    </label>
+                                  {% endif %} -->
+                                <!-- ------------------------------------color image swatch part----------------- -->
+                                {% if option.name == 'Color' %}
+                                 {% assign image_filename = value | downcase | replace: ' ', '_' | handleize | append: '.png' %}
+                                  <label
+                                    for="{{ option.name | handleize }}-{{ value | handleize }}-{{ product.id }}-{{ section.id }}-{{ option.position }}-{{ forloop.index0 }}"
+                                    style="background-image: url({{ image_filename | file_url }});"
+                                    class="radio-color"
+                                  >
+                                  </label>
+                                {% else %}
+                                  <label
+                                    for="{{ option.name | handleize }}-{{ value | handleize }}-{{ product.id }}-{{ section.id }}-{{ option.position }}-{{ forloop.index0 }}"
+                                    class="radio-label"
+                                  >
+                                    {{ value }}
+                                  </label>
+                                {% endif %}
+                                  <!-- ----------------------color radio part End---------------------- -->
+                                </div>
+                              {% endfor %}
+                            </fieldset>
+                          {% endfor %}
+                        </div>
+                        <div class="variant-drop-down">
+                          <select name="id" id="variant-select">
+                            {% for variant in product.variants %}
+                              {% if variant.available %}
+                                <option value="{{ variant.id }}">{{ variant.title }}</option>
+                              {% else %}
+                                <option disabled="disabled">{{ variant.title }} - Sold Out</option>
+                              {% endif %}
+                            {% endfor %}
+                          </select>
+                        </div>
+                      </div>
+                    {% else %}
+                      <input type="hidden" name="id" value="{{ product.variants.first.id }}" id="product-id">
+                    {% endif %}
+                    <quantity-input
+                      class="quantity quantity_coll"
+                      data-url="{{ product.url }}"
+                      data-section="{{ section.id }}"
+                    >
+                      <button
+                        class="quantity__button no-js-hidden"
+                        name="minus"
+                        type="button"
+                      >
+                        <span class="visually-hidden">
+                          {{- 'products.product.quantity.decrease' | t: product: product.title | escape -}}
+                        </span>
+                        {% render 'icon-minus' %}
+                      </button>
+                      <input min="1" type="number" id="quantity" name="quantity" value="1" class="input-field-main">
+
+                      <button
+                        class="quantity__button no-js-hidden"
+                        name="plus"
+                        type="button"
+                      >
+                        <span class="visually-hidden">
+                          {{- 'products.product.quantity.increase' | t: product: product.title | escape -}}
+                        </span>
+                        {% render 'icon-plus' %}
+                      </button>
+                    </quantity-input>
+
+                    <input type="submit" value="Add to cart" class="product-form__btn " id="add-to-cart-btn">
+                    <div id="form-data-container">{{ product | json }};</div>
+                    <div class="product-variant" style="display:none">
+                      {% for variant in product.variants %}
+                        <div
+                          class="variant-inventory"
+                          data-variant-id="{{ variant.id }}"
+                          data-variant-inventory-qty="{{ variant.inventory_quantity }}"
+                        ></div>
+                      {% endfor %}
+                    </div>
+                  </form>
+
+  <!--
+                    ------------------------------------custom code liquid part  End------------------------------------------
+                  -->
+
+ <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      let formBtns = document.querySelectorAll('.product-form__btn');
+
+      formBtns.forEach((formBtn) => {
+        formBtn.addEventListener('click', async (e) => {
+          e.preventDefault();
+          let form = formBtn.closest('form');
+          let product = null;
+          let emptyDiv = form.querySelector("#form-data-container").innerHTML;
+          emptyDiv = emptyDiv.replace(/\u003c/g, "<").replace(/\u003e/g, ">");
+          emptyDiv = emptyDiv.slice(0, -1);
+          product = JSON.parse(emptyDiv);
+          let matchProduct = null;
+          var selectedOptions = '';
+          var radioInputs = form.querySelectorAll('.product-option input[type="radio"]:checked');
+
+          radioInputs.forEach((radio, index) => {
+            selectedOptions += radio.value;
+
+            if (index < radioInputs.length - 1) {
+              selectedOptions += ' / ';
+            }
+          });
+
+          // console.log("selectedOptions in string =>", selectedOptions);
+
+          // console.log("all products with variants:");
+
+          for (let i = 0; i < product.variants.length; i++) {
+            let variant = product.variants[i];
+            if (variant.title == selectedOptions) {
+              matchProduct = variant;
+               // console.log('matchproduct is =>', matchProduct);
+               // console.log('matchproduct is featur=>', matchProduct.featured_image.src);
+              break;
+            }
+          }
+          if (matchProduct) {
+            let formData = new FormData(form);
+            formData.set('id', matchProduct.id);
+           await fetch('/cart/add.js', {
+              method: 'POST',
+              body: formData,
+            })
+             .then((response) => response.json())
+             .then((data) => {
+              document.querySelector('.drawer').classList.remove('is-empty');
+              $('.drawer').load(location.href + ' #CartDrawer');
+              // $('#cart-icon-bubble').load(location.href + '#cart-icon-bubble');
+              // $('.focus-inset').load(location.href + '.cart-count-bubble');
+               let cartCount = document.querySelector('.cart-count-bubble span:first-child');
+               console.log("cartCount",cartCount)
+               setTimeout(function() {
+                  document.querySelector('.header__icon--cart').click();
+                 fetch('/cart.js')
+                 .then((response) => response.json())
+                 .then((cart) => {
+
+                if(!cartCount){
+                let cartCountBubble = document.createElement('div');
+                cartCountBubble.classList.add('cart-count-bubble');
+                let firstSpan = document.createElement('span');
+                firstSpan.setAttribute('aria-hidden', 'true');
+                firstSpan.textContent = cart.item_count;
+                const secondSpan = document.createElement('span');
+                secondSpan.classList.add('visually-hidden');
+                secondSpan.textContent = cart.item_count,'item';
+                cartCountBubble.appendChild(firstSpan);
+                cartCountBubble.appendChild(secondSpan);
+                const anchorElement = document.querySelector('.header__icon--cart');
+                anchorElement.appendChild(cartCountBubble);
+              }
+
+               console.log("cart", cart.item_count)
+               cartCount.innerHTML=cart.item_count;
+               console.log("cart",cartCount.innerHTML)
+             });
+               },500)
+
+              // console.log("your data =>"data)
+           })
+              .catch((error) => {
+                console.error('Error adding to cart:', error);
+              });
+          } else {
+            console.log("Product Not Found");
+          }
+        });
+      });
+
+    });
+  </script>
+
+  <!-- ===============for image change=============== -->
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    let radioButtons = document.querySelectorAll('.product-option input[type="radio"]');
+
+    radioButtons.forEach((radio) => {
+      radio.addEventListener('change', async (e) => {
+        const selectedRadio = e.target;
+        const form = selectedRadio.closest('form');
+        let product = null;
+        let emptyDiv = form.querySelector("#form-data-container").innerHTML;
+        emptyDiv = emptyDiv.replace(/\u003c/g, "<").replace(/\u003e/g, ">");
+        emptyDiv = emptyDiv.slice(0, -1);
+        product = JSON.parse(emptyDiv);
+        let matchProduct = null;
+        var selectedOptions = '';
+        var formRadioInputs = form.querySelectorAll('.product-option input[type="radio"]');
+
+        formRadioInputs.forEach((radio) => {
+          if (radio.checked) {
+            selectedOptions += radio.value;
+            selectedOptions += ' / ';
+          }
+        });
+
+        // Remove the trailing space and slash
+        selectedOptions = selectedOptions.slice(0, -3);
+
+        for (let i = 0; i < product.variants.length; i++) {
+          let variant = product.variants[i];
+          if (variant.title == selectedOptions) {
+            matchProduct = variant;
+            break;
+          }
+        }
+
+        if (matchProduct) {
+          let productImage = form.querySelector('.img-part');
+
+          console.log("productImage",productImage)
+          let newImageSrc = 'https:' + matchProduct.featured_image.src;
+          productImage.src = newImageSrc;
+        }
+      });
+    });
+  });
+</script>
+
+ <!--
+                    ------------------------------------completed custom code part  End------------------------------------------
+                  -->
+
+ <!--
+                    ------------------------------------extra custom code logic part ------------------------------------------
+                  -->
+
+
+ <!--
+                    ------------------------------------quantity issue near to fixed from collection page max quantity add from variant quantity inventory-----------------------------------------
+                  -->
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    let formBtns = document.querySelectorAll('.product-form__btn');
+
+    formBtns.forEach((formBtn) => {
+      formBtn.addEventListener('click', async (e) => {
+        e.preventDefault();
+        let form = formBtn.closest('form');
+        let product = null;
+        let emptyDiv = form.querySelector("#form-data-container").innerHTML;
+        emptyDiv = emptyDiv.replace(/\u003c/g, "<").replace(/\u003e/g, ">");
+        emptyDiv = emptyDiv.slice(0, -1);
+        product = JSON.parse(emptyDiv);
+        let matchProduct = null;
+        var selectedOptions = '';
+        var radioInputs = form.querySelectorAll('.product-option input[type="radio"]:checked');
+
+        radioInputs.forEach((radio, index) => {
+          selectedOptions += radio.value;
+
+          if (index < radioInputs.length - 1) {
+            selectedOptions += ' / ';
+          }
+        });
+
+        for (let i = 0; i < product.variants.length; i++) {
+          let variant = product.variants[i];
+          if (variant.title == selectedOptions) {
+            matchProduct = variant;
+            break;
+          }
+        }
+        if (matchProduct) {
+          const maxQuantity = matchProduct.inventory_quantity;
+          const quantityInput = form.querySelector('.input-field-main');
+          const quantityValue = parseInt(quantityInput.value);
+          console.log('matchProduct ---->',matchProduct)
+          if (quantityValue > 10) {
+            const errorElement = document.createElement('p');
+            errorElement.classList.add('error-message');
+            errorElement.textContent = `You can't add more than ${maxQuantity} of this product to the cart.`;
+            errorElement.style.color = 'red';
+            form.insertBefore(errorElement, formBtn);
+            setTimeout(function () {
+            errorElement.remove(); 
+           }, 1000); 
+
+            return;
+          }
+
+          let formData = new FormData(form);
+          formData.set('id', matchProduct.id);
+
+          await fetch('/cart/add.js', {
+            method: 'POST',
+            body: formData,
+          })
+            .then((response) => response.json())
+            .then((data) => {
+              document.querySelector('.drawer').classList.remove('is-empty');
+              $('.drawer').load(location.href + ' #CartDrawer');
+              let cartCount = document.querySelector('.cart-count-bubble span:first-child');
+              console.log("cartCount", cartCount)
+              setTimeout(function () {
+                document.querySelector('.header__icon--cart').click();
+                fetch('/cart.js')
+                  .then((response) => response.json())
+                  .then((cart) => {
+                    if (!cartCount) {
+                      let cartCountBubble = document.createElement('div');
+                      cartCountBubble.classList.add('cart-count-bubble');
+                      let firstSpan = document.createElement('span');
+                      firstSpan.setAttribute('aria-hidden', 'true');
+                      firstSpan.textContent = cart.item_count;
+                      const secondSpan = document.createElement('span');
+                      secondSpan.classList.add('visually-hidden');
+                      secondSpan.textContent = cart.item_count, 'item';
+                      cartCountBubble.appendChild(firstSpan);
+                      cartCountBubble.appendChild(secondSpan);
+                      const anchorElement = document.querySelector('.header__icon--cart');
+                      anchorElement.appendChild(cartCountBubble);
+                    }
+                    console.log("cart", cart.item_count)
+                    cartCount.innerHTML = cart.item_count;
+                    console.log("cart", cartCount.innerHTML)
+                  });
+              }, 500);
+            })
+            .catch((error) => {
+              console.error('Error adding to cart:', error);
+            });
+        } else {
+          console.log("Product Not Found");
+        }
+      });
+    });
+
+  });
+</script>  
+
+!--
+                    ------------------------------------quantity issue near to fixed -----------------------------------------
+                  -->
