@@ -401,3 +401,235 @@
 !--
                     ------------------------------------quantity issue near to fixed -----------------------------------------
                   -->
+
+
+============================================ style of collection page variant==============================
+
+<style>
+    .grid__item{
+       box-shadow: 0px 0px 2px #b2bec3;
+       padding:5px .3rem 2rem .3rem;
+            }
+   .img-part{
+       width:100%;
+       height:auto;
+       }
+       .page-width{
+       max-width:95%;
+      }
+   .form-field{
+       display: flex;
+      flex-wrap: wrap;
+      gap:1rem;
+          }
+   .form-radio{
+      display:none;
+      }
+   .color-label, .size-label{
+      border: 2px solid black;
+      padding: 5px 10px;
+      border-radius: 2rem;
+      margin:1rem;
+    }
+   .quantity-input{
+      display: flex;
+      border: 1px solid;
+      padding:1.3rem 2px;
+      border-radius: 28px;
+      text-align:center;
+      }
+   .product-form__btn{
+      width:80%;
+      background-color: transparent;
+      border: 1px solid #004e;
+      color: #004e77;
+      padding:15px 43px;
+      margin-top:10px;
+      text-transform: capitalize;
+      border-radius: 28px;
+      cursor:pointer;
+      font-weight: 700;
+      transition: .2s ease-in;
+      margin-left:1rem;
+      }
+   .product-form__btn:hover{
+      color: #ffffff;
+      background-color: #004e77;
+      }
+
+   .product-form__btn:before{
+      border:none;
+      outline:none;
+   }
+   .product-form__btn:after{
+      border:none;
+      outline:none;
+    }
+   #text-field-container{
+       width:20% !important;
+     }
+   .shopify-payment-button__button{
+       display:none;
+    }
+   .quantity_coll{
+       width:30%;
+       text-align:start;
+       margin-left:1rem;
+     }
+   .select:after{
+       border-radius:28px;
+
+     }
+   .select:before{
+      border-radius:28px;
+    }
+
+   .quantity:before{
+      border-radius:28px;
+
+     }
+   .quantity:after{
+      border-radius:28px;
+
+    }
+   input:focus {
+     outline: none;
+     box-shadow: none;
+     border: 1px solid;
+     border-radius:28px;
+  }
+   .quantity:after:focus{
+      outline:none;
+   }
+   .select:hover.select:after{
+     border-radius:28px;
+   }
+   .quantity__button[name='plus']{
+      position: absolute;
+      right: 0;
+      top: 40%;
+      height: 1rem;
+      z-index:999;
+      margin-right:6px;
+   }
+  .quantity__button[name='minus']{
+       position: absolute;
+      left: 0;
+      top: 40%;
+      height: 1rem;
+      z-index:999;
+      margin-left:6px;
+   }
+  .input-field-main{
+       position: absolute;
+       text-align: center;
+       top: 35%;
+       width: 46%;
+      left: 25%;
+      border:none;
+      margin: 0;
+      padding: 0;
+      background-color: transparent;
+      -webkit-appearance: none;
+      outline: none;
+      cursor: text;
+       pointer-events: none;
+   }
+
+   .input-field-main::-webkit-inner-spin-button,
+   .input-field-main::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    appearance: none;
+    margin: 0;
+   }
+   div.variant-drop-down{
+     margin:1rem 0px;
+     outline:none;
+   }
+   select:focus{
+     outline:none;
+     background-color: transparent;
+     box-shadow: none;
+   }
+   select#variant-select{
+     padding: 1rem;
+     border-radius: 28px;
+     opacity: 0;
+     visibility: hidden;
+   }
+
+  .quantity__button {
+    width: calc(2rem / var(--font-body-scale));
+    flex-shrink: 0;
+    font-size: 2rem;
+    border: 0;
+    background-color: transparent;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgb(var(--color-foreground));
+    padding: 0;
+    z-index:999;
+  }
+
+  .quantity__button svg {
+    width: 1.2rem;
+  }
+
+             /* --------------------varient style--------------------- */
+    .product-form__input{
+       border:none;
+      }
+   .radio-label {
+       margin:.5rem;
+       border:0.001px solid black;
+       padding: .7rem 1rem;
+       border-radius:28px;
+       cursor:pointer;
+    }
+    .radio-color{
+      width: 3.5rem;
+      height:3.5rem;
+     display: inline-block;
+     border-radius:28px;
+    }
+    .radioBtnValue{
+       display:none;
+       cursor:pointer;
+    }
+    .option-lable{
+       margin-bottom:1rem;
+       font-size: 2rem;
+       color:#004e77;
+    }
+    .lable-start{
+     margin-left:.5rem;
+     color:red;
+     font-size:1.5rem;
+    }
+    input[type="radio"]:checked + label {
+      border:2px solid #004e77;
+   }
+    input[type="radio"]:checked + label.radio-color {
+      border:2px solid #004e77;
+      box-shadow: 0 0 0 2px #000;
+     transition:box-shadow .2s ease;
+
+   }
+    input[type="radio"]:checked + label.radio-color::before{
+    content:"";
+    border: 3px solid #fff;
+    border-radius:100%;
+    z-index:1;
+    position: absolute;
+    top:-1px;
+   left:-1px;
+   right:-1px;
+   bottom:-1px;
+   }
+
+   #form-data-container{
+      display:none;
+      }
+</style>
