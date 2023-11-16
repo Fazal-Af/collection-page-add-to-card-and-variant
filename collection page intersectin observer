@@ -1,0 +1,579 @@
+ <!-- {% for product in collections[block.settings.collectiones].products %}
+        {{ product.title }}
+{% endfor %}
+ -->
+<div class="collection-wrapper">
+  <div class="collections-container">
+    <!-- <div class="btns">
+      {% for block in section.blocks %}
+        {% if block.type =="button" %}
+        <button>{{ block.settings.btntext }}</button>
+      {% endif %}
+      {% endfor %}
+    </div> -->
+    <div class="collection-container">
+    {% for block in section.blocks %}
+      {% if block.type ==  "collecton" %}
+      {% if collections[block.settings.collectiones].products.size > 0 %}
+      <ul id="product-grid" data-id="{{ section.id }}" class="main-ul">
+      {% for product in collections[block.settings.collectiones].products %}
+        {% assign lazy_load = false %}
+        {%- if forloop.index > 2 -%}
+          {%- assign lazy_load = true -%}
+        {%- endif -%}
+        <li class="product-container">
+          <form method="post" action="/cart/add" class="product-form2 button2" id="main-form">
+            <img src="{{ product.images[0] | img_url: width: '220x' }}" alt="{{ product.title }}" class="img-part">
+            <h2 class='product-title'>{{ product.title }}</h2>
+            <h3 class='product-price'>{{ product.price | money }}</h3>
+            {% if product.metafields.rating > 0 %}
+              <div class="product-rating">Rating: {{ product.metafields.rating }}</div>
+            {% endif %}
+            {% if product.variants.size > 1 %}
+              <!-- <div class="product-option">
+                {% for option in product.options_with_values %}
+                  <fieldset class="product-form__input">
+                    <legend class="option-lable">
+                      {{ option.name }}: <span class="lable-start">*</span>
+                    </legend>
+                    {% for value in option.values %}
+                      <div>
+                        {% if forloop.first %}
+                          <input checked class="radioBtnValue" type="radio" name="{{ option.name }}" value="{{ value }}" id="{{ option.name | handleize }}-{{ value | handleize }}-{{ product.id }}-{{ section.id }}-{{ option.position }}-{{ forloop.index0 }}">
+                        {% else %}
+                          <input class="radioBtnValue" type="radio" name="{{ option.name }}" value="{{ value }}" id="{{ option.name | handleize }}-{{ value | handleize }}-{{ product.id }}-{{ section.id }}-{{ option.position }}-{{ forloop.index0 }}">
+                        {% endif %}
+                        {% if option.name == 'Color' %}
+                          {% assign image_filename = value | downcase | replace: ' ', '_' | handleize | append: '.png' %}
+                          <label for="{{ option.name | handleize }}-{{ value | handleize }}-{{ product.id }}-{{ section.id }}-{{ option.position }}-{{ forloop.index0 }}" style="background-image: url({{ image_filename | file_url }});" class="radio-color"></label>
+                        {% else %}
+                          <label for="{{ option.name | handleize }}-{{ value | handleize }}-{{ product.id }}-{{ section.id }}-{{ option.position }}-{{ forloop.index0 }}" class="radio-label">{{ value }}</label>
+                        {% endif %}
+                      </div>
+                    {% endfor %}
+                  </fieldset>
+                {% endfor %}
+              </div> -->
+              <div class="variant-drop-down">
+                <select name="id" id="variant-select">
+                  {% for variant in product.variants %}
+                    {% if variant.available %}
+                      <option value="{{ variant.id }}">{{ variant.title }}</option>
+                    {% else %}
+                      <option disabled="disabled">{{ variant.title }} - Sold Out</option>
+                    {% endif %}
+                  {% endfor %}
+                </select>
+              </div>
+            {% else %}
+              <input type="hidden" name="id" value="{{ product.variants.first.id }}" id="product-id">
+            {% endif %}
+            <!-- <quantity-input class="quantity quantity_coll" data-url="{{ product.url }}" data-section="{{ section.id }}">
+              <button class="quantity__button no-js-hidden" name="minus" type="button">
+                <span class="visually-hidden">{{ 'products.product.quantity.decrease' | t: product: product.title | escape }}</span>
+                {% render 'icon-minus' %}
+              </button>
+              <input min="1" type="number" id="quantity" name="quantity" value="1" class="input-field-main">
+              <button class="quantity__button no-js-hidden" name="plus" type="button">
+                <span class="visually-hidden">{{ 'products.product.quantity.increase' | t: product: product.title | escape }}</span>
+                {% render 'icon-plus' %}
+              </button>
+            </quantity-input> -->
+            <!-- <input type="submit" value="Add to cart" class="product-form__btn" id="add-to-cart-btn">
+            <div id="form-data-container">{{ product | json }}</div>
+            <div class="product-variant" style="display:none">
+              {% for variant in product.variants %}
+                <div class="variant-inventory" data-variant-id="{{ variant.id }}" data-variant-inventory-qty="{{ variant.inventory_quantity }}"></div>
+              {% endfor %}
+            </div> -->
+          </form>
+        </li>
+      {%- endfor -%}
+    </ul>
+          {% endif %}
+        {% endif %}
+  {% endfor %}
+  </div>
+  </div>
+</div>
+
+<!-- <script>
+  document.addEventListener('DOMContentLoaded', function () {
+    let productContainers = document.querySelectorAll('.product-container');
+    let productImgs = document.querySelectorAll('.img-part');
+    let productTitles = document.querySelectorAll('.product-title');
+    let productPrices = document.querySelectorAll('.product-price');
+   window.addEventListener('scroll', function() {
+    if (window.innerHeight <10) {
+      productContainers.forEach(container => container.classList.add("productContain"));
+      productImgs.forEach(img => img.classList.add("imagePart"));
+      productTitles.forEach(title => title.classList.add("titlePart"));
+      productPrices.forEach(price => price.classList.add("pricePart"));
+    } else if (window.innerHeight > 105) {
+      productContainers.forEach(container => {
+        container.classList.remove("productContain");
+        container.classList.add("show");
+      });
+
+      productImgs.forEach(img => {
+        img.classList.remove("imagePart");
+        img.classList.add("show");
+      });
+
+      productTitles.forEach(title => {
+        title.classList.remove("titlePart");
+        title.classList.add("show");
+      });
+
+      productPrices.forEach(price => {
+        price.classList.remove("pricePart");
+        price.classList.add("show");
+      });
+    }
+   })
+  });
+</script> -->
+
+<!-- <script>
+  document.addEventListener('DOMContentLoaded', function () {
+    let productContainers = document.querySelectorAll('.product-container');
+
+    let options = {
+      root: null,
+      rootMargin: '0px',
+      threshold: 0.5, 
+    };
+
+    function handleIntersection(entries, observer) {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('show');
+          observer.unobserve(entry.target);
+        }
+      });
+    }
+
+    let productObserver = new IntersectionObserver(handleIntersection, options);
+
+    productContainers.forEach(container => {
+      productObserver.observe(container);
+    });
+  });
+</script> -->
+
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    let productContainers = document.querySelectorAll('.product-container');
+
+    let options = {
+      root: null,
+      rootMargin: '0px',
+      threshold: 0.5,
+    };
+
+    function handleIntersection(entries, observer) {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          setTimeout(() => {
+            entry.target.classList.add('show');
+          }, 30); 
+          setTimeout(() => {
+            entry.target.querySelector('.img-part').classList.add('show');
+          }, 50); 
+          setTimeout(() => {
+            entry.target.querySelector('.product-title').classList.add('show');
+          }, 80); 
+          setTimeout(() => {
+            entry.target.querySelector('.product-price').classList.add('show');
+          }, 100); 
+          observer.unobserve(entry.target);
+        }
+      });
+    }
+
+    let productObserver = new IntersectionObserver(handleIntersection, options);
+
+    productContainers.forEach(container => {
+      productObserver.observe(container);
+    });
+  });
+</script>
+
+
+
+<style>
+  .collection-wrapper{
+   height:100vh;
+   padding:5rem 2rem;
+  }
+  .collections-container{
+    display:flex;
+    flex-direction:column;
+    width: 80%;
+    margin: auto;
+  }
+  .btns{
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  gap:1rem;
+  }
+
+   #product-grid{
+     display: flex;
+    flex-wrap: wrap;
+     gap:3rem;
+   }
+   .product-container{
+     width: 30%;
+     list-style: none !important;
+     background: #7474742b;
+   }
+   .product-form2{
+     position:relative;
+   }
+  .product-price{
+    position: absolute;
+    right: 1rem;
+    bottom:0.5rem;
+    border-top: solid 2px;
+    border-bottom: solid 2px;
+  }
+  .product-title {
+  margin-left: .5rem;
+  }
+  /* ==================================product form  parts=============== */
+
+    .grid__item{
+       box-shadow: 0px 0px 2px #b2bec3;
+       padding:5px .3rem 2rem .3rem;
+            }
+   .img-part{
+       width:100%;
+       height:auto;
+       }
+       .page-width{
+       max-width:95%;
+      }
+   .form-field{
+       display: flex;
+      flex-wrap: wrap;
+      gap:1rem;
+          }
+   .form-radio{
+      display:none;
+      }
+   .color-label, .size-label{
+      border: 2px solid black;
+      padding: 5px 10px;
+      border-radius: 2rem;
+      margin:1rem;
+    }
+   .quantity-input{
+      display: flex;
+      border: 1px solid;
+      padding:1.3rem 2px;
+      border-radius: 28px;
+      text-align:center;
+      }
+   .product-form__btn{
+      width:80%;
+      background-color: transparent;
+      border: 1px solid #004e;
+      color: #004e77;
+      padding:15px 43px;
+      margin-top:10px;
+      text-transform: capitalize;
+      border-radius: 28px;
+      cursor:pointer;
+      font-weight: 700;
+      transition: .2s ease-in;
+      margin-left:1rem;
+      }
+   .product-form__btn:hover{
+      color: #ffffff;
+      background-color: #004e77;
+      }
+
+   .product-form__btn:before{
+      border:none;
+      outline:none;
+   }
+   .product-form__btn:after{
+      border:none;
+      outline:none;
+    }
+   #text-field-container{
+       width:20% !important;
+     }
+   .shopify-payment-button__button{
+       display:none;
+    }
+   .quantity_coll{
+       width:30%;
+       text-align:start;
+       margin-left:1rem;
+     }
+   .select:after{
+       border-radius:28px;
+
+     }
+   .select:before{
+      border-radius:28px;
+    }
+
+   .quantity:before{
+      border-radius:28px;
+
+     }
+   .quantity:after{
+      border-radius:28px;
+
+    }
+   input:focus {
+     outline: none;
+     box-shadow: none;
+     border: 1px solid;
+     border-radius:28px;
+  }
+   .quantity:after:focus{
+      outline:none;
+   }
+   .select:hover.select:after{
+     border-radius:28px;
+   }
+   .quantity__button[name='plus']{
+      position: absolute;
+      right: 0;
+      top: 40%;
+      height: 1rem;
+      z-index:999;
+      margin-right:6px;
+   }
+  .quantity__button[name='minus']{
+       position: absolute;
+      left: 0;
+      top: 40%;
+      height: 1rem;
+      z-index:999;
+      margin-left:6px;
+   }
+  .input-field-main{
+       position: absolute;
+       text-align: center;
+       top: 35%;
+       width: 46%;
+      left: 25%;
+      border:none;
+      margin: 0;
+      padding: 0;
+      background-color: transparent;
+      -webkit-appearance: none;
+      outline: none;
+      cursor: text;
+       pointer-events: none;
+   }
+
+   .input-field-main::-webkit-inner-spin-button,
+   .input-field-main::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    appearance: none;
+    margin: 0;
+   }
+   div.variant-drop-down{
+     margin:1rem 0px;
+     outline:none;
+   }
+   select:focus{
+     outline:none;
+     background-color: transparent;
+     box-shadow: none;
+   }
+   select#variant-select{
+     padding: 1rem;
+     border-radius: 28px;
+     opacity: 0;
+     visibility: hidden;
+   }
+
+  .quantity__button {
+    width: calc(2rem / var(--font-body-scale));
+    flex-shrink: 0;
+    font-size: 2rem;
+    border: 0;
+    background-color: transparent;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgb(var(--color-foreground));
+    padding: 0;
+    z-index:999;
+  }
+
+  .quantity__button svg {
+    width: 1.2rem;
+  }
+
+             /* --------------------varient style--------------------- */
+    .product-form__input{
+       border:none;
+      }
+   .radio-label {
+       margin:.5rem;
+       border:0.001px solid black;
+       padding: .7rem 1rem;
+       border-radius:28px;
+       cursor:pointer;
+    }
+    .radio-color{
+      width: 3.5rem;
+      height:3.5rem;
+     display: inline-block;
+     border-radius:28px;
+    }
+    .radioBtnValue{
+       display:none;
+       cursor:pointer;
+    }
+    .option-lable{
+       margin-bottom:1rem;
+       font-size: 2rem;
+       color:#004e77;
+    }
+    .lable-start{
+     margin-left:.5rem;
+     color:red;
+     font-size:1.5rem;
+    }
+    input[type="radio"]:checked + label {
+      border:2px solid #004e77;
+   }
+    input[type="radio"]:checked + label.radio-color {
+      border:2px solid #004e77;
+      box-shadow: 0 0 0 2px #000;
+     transition:box-shadow .2s ease;
+
+   }
+    /* input[type="radio"]:checked + label.radio-color::before{
+    content:"";
+    border: 3px solid #fff;
+    border-radius:100%;
+    z-index:1;
+    position: absolute;
+    top:-1px;
+   left:-1px;
+   right:-1px;
+   bottom:-1px;
+   } */
+
+   #form-data-container{
+      display:none;
+      }
+
+
+  /* ==================================product form  parts end=============== */
+
+ /* .productContain {
+      opacity: 0;
+      transform: translateY(20px);
+      transition: all 0.5s ease;
+    }
+ .imagePart{
+     opacity: 0;
+      transform: translateY(20px);
+      transition: all 1s ease;
+ }
+ .titlePart{
+     opacity: 0;
+      transform: translateY(20px);
+      transition: all 1.5s ease;
+ }
+ .pricePart{
+    opacity: 0;
+      transform: translateY(20px);
+      transition: all 2s ease;
+ }
+ .show {
+      opacity: 1;
+      transform: translateY(0);
+    } */
+
+
+.product-container {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.2s ease 0.3s, transform 0.2s ease 0.3s;
+}
+
+.img-part {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.5s ease 0.7s, transform 0.5s ease 0.7s;
+}
+
+.product-title {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.7s ease 1s, transform 0.7s ease 1s;
+}
+
+.product-price {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 1s ease 1.5s, transform 1s ease 1.5s;
+}
+
+.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+
+</style>
+{% schema %}
+    {
+    "name": "Custom Collection",
+    "tag":"section",
+    "settings": [
+    
+    ],
+      "blocks":[
+        {
+     "name": "Button",
+     "type": "button",
+      "settings": [
+        {
+              "id": "btntext",
+              "type": "text",
+              "label": "Button Text"
+            }
+          ]
+        },
+        {
+     "name": "Collection",
+     "type": "collecton",
+      "settings": [
+        {
+         "type": "collection",
+          "id": "collectiones",
+         "label": "Collection"
+         }
+          ]
+        }
+    
+    ],
+     "presets":[
+      {
+       "name":"Custom Collection"
+      }
+    ]
+  }
+{% endschema %}
+
+{% stylesheet %}
+{% endstylesheet %}
+
+{% javascript %}
+{% endjavascript %}
