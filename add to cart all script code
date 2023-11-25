@@ -1,1 +1,451 @@
 
+                  <!--
+                    ------------------------------------custom code part------------------------------------------
+                  -->
+
+                  <img
+                    src="{{ product.images[0] | img_url: “master" }}"
+                    alt="{{ product.title }}"
+                    class="img-part"
+                  >
+
+                  <h2>{{ product.title }}</h2>
+                  <h3>{{ product.price | money }}</h3>
+                  {% if product.metafields.rating > 0 %}
+                    <div class="product-rating">Rating: {{ product.metafields.rating }}</div>
+                  {% endif %}
+                  <form method="post" action="/cart/add" class="product-form2 button2" id="main-form">
+                    {% if product.variants.size > 1 %}
+                      <div>
+                        <div class="product-option">
+                          {% for option in product.options_with_values %}
+                            <fieldset class="product-form__input">
+                              <legend class="option-lable">
+                                {{ option.name }}: <span class="lable-start">*</span>
+                              </legend>
+                              {% for value in option.values %}
+                                <div>
+                                  {% if forloop.first %}
+                                  <input
+                                    checked
+                                    class="radioBtnValue"
+                                    type="radio"
+                                    name="{{ option.name }}"
+                                    value="{{ value }}"
+                                    id="{{ option.name | handleize }}-{{ value | handleize }}-{{ product.id }}-{{ section.id }}-{{ option.position }}-{{ forloop.index0 }}"
+                                    >
+                                  {% else %}
+                                <input
+                                 class="radioBtnValue"
+                                 type="radio"
+                                 name="{{ option.name }}"
+                                 value="{{ value }}"
+                                 id="{{ option.name | handleize }}-{{ value | handleize }}-{{ product.id }}-{{ section.id }}-{{ option.position }}-{{ forloop.index0 }}"
+                                >
+                                    {% endif %}
+                           
+                                  <label
+                                    for="{{ option.name | handleize }}-{{ value | handleize }}-{{ product.id }}-{{ section.id }}-{{ option.position }}-{{ forloop.index0 }}"
+                                    class="radio-label"
+                                  >
+                                    {{ value }}
+                                  </label>
+                                </div>
+                              {% endfor %}
+                            </fieldset>
+                          {% endfor %}
+                        </div>
+                        <div class="variant-drop-down">
+                          <select name="id" id="variant-select">
+                            {% for variant in product.variants %}
+                              {% if variant.available %}
+                                <option value="{{ variant.id }}">{{ variant.title }}</option>
+                              {% else %}
+                                <option disabled="disabled">{{ variant.title }} - Sold Out</option>
+                              {% endif %}
+                            {% endfor %}
+                          </select>
+                        </div>
+                      </div>
+                    {% else %}
+                      <input type="hidden" name="id" value="{{ product.variants.first.id }}" id="product-id">
+                    {% endif %}
+                    <quantity-input class="quantity" data-url="{{ product.url }}" data-section="{{ section.id }}">
+                      <button
+                        class="quantity__button no-js-hidden"
+                        name="minus"
+                        type="button"
+                      >
+                        <span class="visually-hidden">
+                          {{- 'products.product.quantity.decrease' | t: product: product.title | escape -}}
+                        </span>
+                        {% render 'icon-minus' %}
+                      </button>
+                      <input min="1" type="number" id="quantity" name="quantity" value="1" class="input-field-main">
+                      <button
+                        class="quantity__button no-js-hidden"
+                        name="plus"
+                        type="button"
+                      >
+                        <span class="visually-hidden">
+                          {{- 'products.product.quantity.increase' | t: product: product.title | escape -}}
+                        </span>
+                        {% render 'icon-plus' %}
+                      </button>
+                    </quantity-input>
+                    <input type="submit" value="Add to cart" class="product-form__btn " id="add-to-cart-btn">
+                    <div id="form-data-container">{{ product | json }};</div>
+                  </form>
+
+                  <!-- --------------------- custome code html End-------------------------------------- -->
+
+
+         <!-- --------------------- custome code JS -------------------------------------- -->
+<script>
+let radioBtns = document.querySelectorAll('.radioBtnValue');
+radioBtns.forEach(radio => {
+  radio.addEventListener('change', function(event) {
+    let form = event.target.closest('form');
+    // console.log('Form:', form);
+    let product = null; 
+    let variantSelect = form.querySelector('#variant-select'); 
+    let emptyDiv = form.querySelector("#form-data-container").innerHTML;
+    emptyDiv = emptyDiv.replace(/\u003c/g, "<").replace(/\u003e/g, ">");
+    emptyDiv = emptyDiv.slice(0, -1);
+    product = JSON.parse(emptyDiv);
+       let matchProduct = null
+     var selectedOptions = '';
+    var radioInputs = form.querySelectorAll('.product-option input[type="radio"]:checked');
+
+    radioInputs.forEach((radio, index) => {
+    selectedOptions += radio.value;
+
+    if (index < radioInputs.length - 1) {
+    selectedOptions += ' '+'/'+' ';
+    }
+   });
+   console.log("selectedOptions in string =>",selectedOptions)
+   console.log("all product with variant:")
+   for(let i=0; i<product.variants.length; i++){
+   let variant = product.variants[i]
+   if (variant.title == selectedOptions)
+   {
+    matchProduct = variant
+    console.log('matchproduct is =>',matchProduct)
+     break;
+   }
+  } 
+    if(matchProduct)
+    {
+    if(variantSelect)
+    {
+     variantSelect.value=matchProduct.id
+    }
+      else{
+    console.log("Product Not Found")
+      }
+    }
+  
+  });  
+});
+</script>
+
+2nd Method:
+<script>
+let radioBtns = document.querySelectorAll('.radioBtnValue');
+radioBtns.forEach(radio => {
+  radio.addEventListener('change', function(event) {
+    let form = event.target.closest('form');
+    // console.log('Form:', form);
+    let product = null; 
+    let variantSelect = form.querySelector('#variant-select'); 
+    let emptyDiv = form.querySelector("#form-data-container").innerHTML;
+    emptyDiv = emptyDiv.replace(/\u003c/g, "<").replace(/\u003e/g, ">");
+    emptyDiv = emptyDiv.slice(0, -1);
+    product = JSON.parse(emptyDiv);
+
+let selectedOptions = [];
+    form.querySelectorAll('.product-option input[type="radio"]:checked').forEach(radio => {
+      selectedOptions.push(radio.value);
+    });
+    console.log("selectedOptions", selectedOptions);  
+
+var matchingVariant = null;
+
+    for (var j = 0; j < product.variants.length; j++) {
+      const variant = product.variants[j];
+      var pass = true;
+
+      for (var k = 0; k < selectedOptions.length; k++) {
+        if (selectedOptions.indexOf(variant[`option${k + 1}`]) === -1) {
+          pass = false;
+          break;
+        }
+      }
+
+      if (pass) {
+        matchingVariant = variant;
+        break;
+      }
+    }
+    
+    if (matchingVariant) {
+      console.log("matchVariant=>", matchingVariant);
+      if (variantSelect) {
+        variantSelect.value = matchingVariant.id;
+        console.log("variant get id from matchproduct=>", variantSelect.value);
+      } else {
+        console.log("No matching variant found.");
+      }
+    }
+
+  });  
+});
+</script>
+
+3rd Method update with ajax 
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    let formBtns = document.querySelectorAll('.product-form__btn');
+
+    formBtns.forEach((formBtn) => {
+      formBtn.addEventListener('click', async (e) => {
+        e.preventDefault();
+        let form = formBtn.closest('form');
+        let product = null;
+        let variantSelect = form.querySelector('#variant-select');
+        let emptyDiv = form.querySelector("#form-data-container").innerHTML;
+        emptyDiv = emptyDiv.replace(/\u003c/g, "<").replace(/\u003e/g, ">");
+        emptyDiv = emptyDiv.slice(0, -1);
+        product = JSON.parse(emptyDiv);
+        let matchProduct = null;
+        var selectedOptions = '';
+        var radioInputs = form.querySelectorAll('.product-option input[type="radio"]:checked');
+
+        radioInputs.forEach((radio, index) => {
+          selectedOptions += radio.value;
+
+          if (index < radioInputs.length - 1) {
+            selectedOptions += ' / ';
+          }
+        });
+
+        console.log("selectedOptions in string =>", selectedOptions);
+        console.log("all products with variants:");
+        for (let i = 0; i < product.variants.length; i++) {
+          let variant = product.variants[i];
+          if (variant.title == selectedOptions) {
+            matchProduct = variant;
+            console.log('matchproduct is =>', matchProduct);
+            break;
+          }
+        }
+
+        if (matchProduct) {
+          // Prepare the data to send via AJAX
+          let formData = new FormData(form);
+          formData.set('id', matchProduct.id);
+
+          // Send the data using AJAX
+          fetch('/cart/add.js', {
+            method: 'POST',
+            body: formData,
+          })
+            .then((response) => response.json())
+            .then((data) => {
+              // Handle the response here, e.g., update the cart display
+              console.log('Added to cart:', data);
+            })
+            .catch((error) => {
+              console.error('Error adding to cart:', error);
+            });
+        } else {
+          console.log("Product Not Found");
+        }
+      });
+    });
+  });
+</script>
+
+         <!-- --------------------- custome code JS End-------------------------------------- -->
+
+<!-- --------------------- custome code  Style -------------------------------------- -->
+<style>
+  .grid__item{
+     box-shadow: 0px 0px 2px #b2bec3;
+     padding:5px .3rem 2rem .3rem;
+          }
+ .img-part{
+     width:100%;
+     height:auto;
+     }
+     .page-width{
+     max-width:95%;
+    }
+ .form-field{
+     display: flex;
+    flex-wrap: wrap;
+    gap:1rem;
+        }
+ .form-radio{
+    display:none;
+    }
+ .color-label, .size-label{
+    border: 2px solid black;
+    padding: 5px 10px;
+    border-radius: 2rem;
+    margin:1rem;
+  }
+ .quantity-input{
+    display: flex;
+    border: 1px solid;
+    padding:1.3rem 2px;
+    border-radius: 28px;
+    text-align:center;
+    }
+ .product-form__btn{
+    width:80%;
+    background-color: transparent;
+    border: 1px solid #004e;
+    color: #004e77;
+    padding:15px 43px;
+    margin-top:10px;
+    text-transform: capitalize;
+    border-radius: 28px;
+    cursor:pointer;
+    font-weight: 700;
+    transition: .2s ease-in;
+    margin-left:1rem;
+    }
+ .product-form__btn:hover{
+    color: #ffffff;
+    background-color: #004e77;
+    }
+
+ .product-form__btn:before{
+    border:none;
+    outline:none;
+ }
+ .product-form__btn:after{
+    border:none;
+    outline:none;
+  }
+ #text-field-container{
+     width:20% !important;
+   }
+ .shopify-payment-button__button{
+     display:none;
+  }
+ .quantity {
+     width:30% !important;
+     text-align:start;
+     margin-left:1rem;
+   }
+ .select:after{
+     border-radius:28px;
+
+   }
+ .select:before{
+    border-radius:28px;
+  } 
+
+ .quantity:before{
+    border-radius:28px;
+
+   }
+ .quantity:after{
+    border-radius:28px;
+
+  }
+ .quantity:after:focus{
+    outline:none;
+ }
+ .select:hover.select:after{
+   border-radius:28px;
+ }
+ .quantity__button[name='plus']{
+    position: absolute;
+    right: 0;
+    top: 40%;
+ }
+.quantity__button[name='minus']{
+     position: absolute;
+     left: 0;
+     top: 50%;
+ }
+.input-field-main{
+     position: absolute;
+     text-align: center;
+     top: 35%;
+     width: 46%;
+    left: 25%;
+    border:none;
+    margin: 0;
+    padding: 0;
+    background-color: transparent;
+    -webkit-appearance: none;
+    outline: none;
+    cursor: text;
+     pointer-events: none;
+ }
+
+ .input-field-main::-webkit-inner-spin-button,
+ .input-field-main::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  appearance: none;
+  margin: 0;
+ }
+ div.variant-drop-down{
+   margin:1rem 0px;
+   outline:none;
+ }
+ select:focus{
+   outline:none;
+   background-color: transparent;
+   box-shadow: none;
+ }
+ select#variant-select{
+   padding: 1rem;
+   border-radius: 28px;
+   opacity: 0;
+   visibility: hidden;
+ }
+
+           /* --------------------varient style--------------------- */
+  .product-form__input{
+     border:none;
+    }
+  .radio-label {
+     margin:.5rem;
+     border:0.001px solid black;
+     padding: .7rem 1rem;
+     border-radius:28px;
+     cursor:pointer;
+  }
+  .radioBtnValue{
+     display:none;
+     cursor:pointer;
+  }
+  .option-lable{
+     margin-bottom:1rem;
+     font-size: 2rem;
+     color:#004e77;
+  }
+  .lable-start{
+   margin-left:.5rem;
+   color:red;
+   font-size:1.5rem;
+  }
+  input[type="radio"]:checked + label {
+   /* color: #ffffff; */
+  /* background-color: #004d770d; */
+    border:2px solid #004e77;
+ }
+
+ #form-data-container{
+    display:none;
+    }
+</style>
+<!-- --------------------- custome code style End-------------------------------------- -->
+
