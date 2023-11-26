@@ -1,0 +1,40 @@
+<script>
+ let product = {{product | json}}
+ let radioBtns = document.querySelectorAll('.radio-btn')
+ radioBtns.forEach(radio=> {
+   radio.addEventListener("click",function (){
+ // let radioCheck = document.querySelectorAll('.radio-btn')
+ let matchProduct=null;
+ let selectOption=''
+   var radioInputs = document.querySelectorAll('.option-div input[type="radio"]:checked');
+
+    radioInputs.forEach((radio, index) => {
+    selectOption += radio.value;
+
+    if (index < radioInputs.length - 1) {
+   selectOption += ' / ';
+    }
+   });
+ console.log("selectoption",selectOption)
+for (let i=0; i<product.variants.length; i++)
+  {
+  let variant = product.variants[i]
+  if (variant.title == selectOption){
+    matchProduct = variant
+    break;
+  }
+ } 
+  if(matchProduct)
+  {
+  let variantSelect = document.querySelector('.variant-select')
+  if(variantSelect){
+   variantSelect.value = matchProduct.id
+  }
+  }
+  else{
+   console.log("matchProduct not found")
+  } 
+   })
+ })
+ 
+</script>
